@@ -1,20 +1,11 @@
-
 import { createContext, useContext, useState, ReactNode } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { ColorPalette, Education, PersonalDetails, ResumeData, ResumeTemplate, Skill, WorkExperience } from '@/types/resume';
 
-// Resume Templates
+// Resume Templates - Reduced to just two templates
 export const resumeTemplates: ResumeTemplate[] = [
-  { id: 'classic', name: 'Classic', thumbnail: '/templates/classic-thumb.png', previewImage: '/templates/classic-preview.png' },
-  { id: 'modern', name: 'Modern', thumbnail: '/templates/modern-thumb.png', previewImage: '/templates/modern-preview.png' },
-  { id: 'minimal', name: 'Minimal', thumbnail: '/templates/minimal-thumb.png', previewImage: '/templates/minimal-preview.png' },
-  { id: 'professional', name: 'Professional', thumbnail: '/templates/professional-thumb.png', previewImage: '/templates/professional-preview.png' },
-  { id: 'executive', name: 'Executive', thumbnail: '/templates/executive-thumb.png', previewImage: '/templates/executive-preview.png' },
-  { id: 'creative', name: 'Creative', thumbnail: '/templates/creative-thumb.png', previewImage: '/templates/creative-preview.png' },
-  { id: 'elegant', name: 'Elegant', thumbnail: '/templates/elegant-thumb.png', previewImage: '/templates/elegant-preview.png' },
-  { id: 'corporate', name: 'Corporate', thumbnail: '/templates/corporate-thumb.png', previewImage: '/templates/corporate-preview.png' },
-  { id: 'bold', name: 'Bold', thumbnail: '/templates/bold-thumb.png', previewImage: '/templates/bold-preview.png' },
-  { id: 'simple', name: 'Simple', thumbnail: '/templates/simple-thumb.png', previewImage: '/templates/simple-preview.png' },
+  { id: 'classic', name: 'Classic (Single Column)', thumbnail: '/templates/classic-thumb.png', previewImage: '/templates/classic-preview.png' },
+  { id: 'modern', name: 'Modern (Two Column)', thumbnail: '/templates/modern-thumb.png', previewImage: '/templates/modern-preview.png' },
 ];
 
 // Color Palettes

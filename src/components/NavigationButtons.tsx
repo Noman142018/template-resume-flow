@@ -2,6 +2,7 @@
 import { useResume } from "@/context/ResumeContext";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { ArrowRight, ArrowLeft } from "lucide-react";
 
 type NavigationButtonsProps = {
   nextPath?: string;
@@ -42,17 +43,25 @@ export default function NavigationButtons({
 
   return (
     <div className="flex justify-between mt-8">
-      <Button
-        variant="outline"
-        onClick={handlePrev}
-        disabled={!prevPath}
-        className="px-6"
-      >
-        {prevLabel}
-      </Button>
-      <Button onClick={handleNext} disabled={!nextPath} className="px-6">
-        {nextLabel}
-      </Button>
+      {prevPath ? (
+        <Button
+          variant="outline"
+          onClick={handlePrev}
+          className="px-6 flex items-center gap-2"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          {prevLabel}
+        </Button>
+      ) : (
+        <div></div> // Empty div to maintain flex layout
+      )}
+      
+      {nextPath && (
+        <Button onClick={handleNext} className="px-6 flex items-center gap-2">
+          {nextLabel}
+          <ArrowRight className="h-4 w-4" />
+        </Button>
+      )}
     </div>
   );
 }

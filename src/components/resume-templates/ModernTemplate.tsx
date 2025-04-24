@@ -11,44 +11,52 @@ const ModernTemplate: React.FC<ModernTemplateProps> = ({ resumeData, colorPalett
   const { personalDetails, education, workExperience, skills } = resumeData;
 
   return (
-    <div className="w-full h-full font-sans">
+    <div className="w-full h-full font-sans flex flex-col">
       {/* Header */}
       <header 
-        className="p-8"
+        className="p-6 md:p-8 flex flex-col md:flex-row gap-4 items-start"
         style={{ backgroundColor: colorPalette.primary, color: colorPalette.primary === '#FFFFFF' ? '#000000' : '#FFFFFF' }}
       >
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold mb-2">{personalDetails.fullName}</h1>
-            <div className="text-sm opacity-90">{personalDetails.email} • {personalDetails.phone}</div>
-            {personalDetails.linkedin && (
-              <div className="text-sm opacity-90">{personalDetails.linkedin}</div>
+        {/* Profile Picture - Top Left */}
+        {personalDetails.profilePicture && (
+          <div className="flex-shrink-0">
+            <div className="w-24 h-24 md:w-28 md:h-28 rounded-full overflow-hidden border-2 border-white">
+              <img 
+                src={personalDetails.profilePicture} 
+                alt={personalDetails.fullName}
+                className="w-full h-full object-cover" 
+              />
+            </div>
+          </div>
+        )}
+
+        <div className="flex-grow">
+          <h1 className="text-2xl md:text-3xl font-bold mb-2">{personalDetails.fullName}</h1>
+          <div className="text-sm opacity-90 flex flex-col md:flex-row md:gap-3 flex-wrap">
+            {personalDetails.email && (
+              <div>{personalDetails.email}</div>
             )}
-            <div className="text-sm opacity-90">{personalDetails.address}</div>
+            {personalDetails.phone && (
+              <div>{personalDetails.phone}</div>
+            )}
+            {personalDetails.address && (
+              <div>{personalDetails.address}</div>
+            )}
+            {personalDetails.linkedin && (
+              <div>{personalDetails.linkedin}</div>
+            )}
           </div>
           
-          {personalDetails.profilePicture && (
-            <div className="hidden md:block">
-              <div className="w-28 h-28 rounded-full overflow-hidden border-2 border-white">
-                <img 
-                  src={personalDetails.profilePicture} 
-                  alt={personalDetails.fullName}
-                  className="w-full h-full object-cover" 
-                />
-              </div>
-            </div>
+          {personalDetails.summary && (
+            <p className="mt-3 text-sm">{personalDetails.summary}</p>
           )}
         </div>
-        
-        {personalDetails.summary && (
-          <p className="mt-6 max-w-2xl">{personalDetails.summary}</p>
-        )}
       </header>
 
-      <div className="grid grid-cols-3 gap-0">
+      <div className="flex flex-col md:flex-row flex-grow">
         {/* Left Sidebar */}
         <div 
-          className="col-span-1 p-6"
+          className="w-full md:w-1/3 p-5 md:p-6"
           style={{ backgroundColor: colorPalette.secondary + '20', color: colorPalette.text }}
         >
           {/* Skills Section */}
@@ -60,7 +68,7 @@ const ModernTemplate: React.FC<ModernTemplateProps> = ({ resumeData, colorPalett
               >
                 Skills
               </h2>
-              <div className="space-y-2">
+              <div className="flex flex-wrap gap-2">
                 {skills.map((skill) => (
                   <div 
                     key={skill.id}
@@ -118,7 +126,7 @@ const ModernTemplate: React.FC<ModernTemplateProps> = ({ resumeData, colorPalett
         </div>
 
         {/* Main Content Area */}
-        <div className="col-span-2 p-6" style={{ backgroundColor: colorPalette.background, color: colorPalette.text }}>
+        <div className="w-full md:w-2/3 p-5 md:p-6" style={{ backgroundColor: colorPalette.background, color: colorPalette.text }}>
           {/* Work Experience Section */}
           {workExperience.length > 0 && (
             <section>
@@ -128,7 +136,7 @@ const ModernTemplate: React.FC<ModernTemplateProps> = ({ resumeData, colorPalett
               >
                 Work Experience
               </h2>
-              <div className="space-y-6">
+              <div className="space-y-5">
                 {workExperience.map((exp) => (
                   <div key={exp.id}>
                     <div className="flex flex-col md:flex-row md:justify-between md:items-baseline">

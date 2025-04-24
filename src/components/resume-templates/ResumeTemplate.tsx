@@ -19,21 +19,9 @@ const ResumeTemplate = forwardRef<HTMLDivElement, ResumeTemplateProps>(
     // Render the selected template
     const renderTemplate = () => {
       switch (resumeData.selectedTemplate) {
-        case 'classic':
-          return <ClassicTemplate resumeData={resumeData} colorPalette={selectedPalette} />;
         case 'modern':
           return <ModernTemplate resumeData={resumeData} colorPalette={selectedPalette} />;
-        // For simplicity in this demo, we'll use the existing templates for all types
-        case 'minimal':
-        case 'professional':
-        case 'executive':
-        case 'creative':
-          return <ClassicTemplate resumeData={resumeData} colorPalette={selectedPalette} />;
-        case 'elegant':
-        case 'corporate':
-        case 'bold':
-        case 'simple':
-          return <ModernTemplate resumeData={resumeData} colorPalette={selectedPalette} />;
+        case 'classic':
         default:
           return <ClassicTemplate resumeData={resumeData} colorPalette={selectedPalette} />;
       }
