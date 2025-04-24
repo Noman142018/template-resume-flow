@@ -14,7 +14,17 @@ import { useIsMobile } from '@/hooks/use-mobile';
 export default function Preview() {
   const { resumeData, updateTemplate } = useResume();
   const resumeRef = useRef<HTMLDivElement>(null);
-  const { toPDF, targetRef } = usePDF({filename: `${resumeData.personalDetails.fullName.replace(/\s+/g, '_')}_Resume.pdf`});
+  const { toPDF, targetRef } = usePDF({
+    filename: `${resumeData.personalDetails.fullName.replace(/\s+/g, '_')}_Resume.pdf`,
+    page: {
+      // Set explicit dimensions for A4
+      width: 210,
+      height: 297,
+      unit: 'mm',
+      orientation: 'portrait',
+    },
+    method: 'save'
+  });
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   
@@ -93,17 +103,16 @@ export default function Preview() {
           </div>
           
           {/* The actual resume preview - Mobile friendly container */}
-          <div className="flex justify-center p-2 md:p-4 bg-gray-50 overflow-hidden">
+          <div className="flex justify-center p-2 md:p-4 bg-gray-50 overflow-auto">
             <div 
-              className={`w-full max-w-[800px] bg-white shadow-sm ${
-                isMobile ? 'transform-none' : 'aspect-[210/297]'
+              className={`w-full bg-white shadow-sm ${
+                isMobile ? 'max-w-full min-h-[500px]' : 'max-w-[800px] aspect-[210/297]'
               }`}
               style={{
                 height: isMobile ? 'auto' : undefined,
-                transform: isMobile ? 'none' : undefined,
               }}
             >
-              <div className="h-full">
+              <div className="h-full w-full">
                 <ResumeTemplate ref={targetRef} resumeData={resumeData} />
               </div>
             </div>

@@ -12,7 +12,7 @@ const ClassicTemplate: React.FC<ClassicTemplateProps> = ({ resumeData, colorPale
 
   return (
     <div 
-      className="w-full h-full p-6 md:p-8 font-sans"
+      className="w-full h-full p-6 md:p-8 font-sans flex flex-col"
       style={{
         backgroundColor: colorPalette.background,
         color: colorPalette.text,
@@ -63,21 +63,21 @@ const ClassicTemplate: React.FC<ClassicTemplateProps> = ({ resumeData, colorPale
         )}
       </header>
 
-      {/* Main Content */}
-      <div className="space-y-6">
+      {/* Main Content - Modified to ensure PDF compatibility */}
+      <div className="space-y-6 print:block">
         {/* Education Section */}
         {education.length > 0 && (
-          <section className="mb-6">
+          <section className="mb-6 print:block">
             <h2 
               className="text-xl font-semibold mb-3 pb-1 border-b"
               style={{ color: colorPalette.primary, borderColor: colorPalette.primary + '50' }}
             >
               Education
             </h2>
-            <div className="space-y-4">
+            <div className="space-y-4 print:block">
               {education.map((edu) => (
-                <div key={edu.id}>
-                  <div className="flex flex-col md:flex-row md:justify-between md:items-baseline">
+                <div key={edu.id} className="print:mb-3">
+                  <div className="flex flex-col md:flex-row md:justify-between md:items-baseline print:flex-row print:justify-between">
                     <h3 className="font-medium">{edu.degree}</h3>
                     <div className="text-sm">
                       {edu.startDate && (
@@ -108,17 +108,17 @@ const ClassicTemplate: React.FC<ClassicTemplateProps> = ({ resumeData, colorPale
 
         {/* Work Experience Section */}
         {workExperience.length > 0 && (
-          <section className="mb-6">
+          <section className="mb-6 print:block">
             <h2 
               className="text-xl font-semibold mb-3 pb-1 border-b"
               style={{ color: colorPalette.primary, borderColor: colorPalette.primary + '50' }}
             >
               Work Experience
             </h2>
-            <div className="space-y-5">
+            <div className="space-y-5 print:block">
               {workExperience.map((exp) => (
-                <div key={exp.id}>
-                  <div className="flex flex-col md:flex-row md:justify-between md:items-baseline">
+                <div key={exp.id} className="print:mb-4">
+                  <div className="flex flex-col md:flex-row md:justify-between md:items-baseline print:flex-row print:justify-between">
                     <h3 className="font-medium">{exp.jobTitle}</h3>
                     <div className="text-sm">
                       {exp.startDate && (
@@ -151,18 +151,18 @@ const ClassicTemplate: React.FC<ClassicTemplateProps> = ({ resumeData, colorPale
         
         {/* Skills Section */}
         {skills.length > 0 && (
-          <section className="mb-6">
+          <section className="mb-6 print:block">
             <h2 
               className="text-xl font-semibold mb-3 pb-1 border-b"
               style={{ color: colorPalette.primary, borderColor: colorPalette.primary + '50' }}
             >
               Skills
             </h2>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 print:flex print:flex-wrap">
               {skills.map((skill) => (
                 <span 
                   key={skill.id}
-                  className="px-3 py-1 rounded-full text-sm"
+                  className="px-3 py-1 rounded-full text-sm print:inline-block print:mr-2 print:mb-2"
                   style={{ 
                     backgroundColor: colorPalette.secondary,
                     color: colorPalette.background

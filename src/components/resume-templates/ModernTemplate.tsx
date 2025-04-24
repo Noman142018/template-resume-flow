@@ -125,11 +125,14 @@ const ModernTemplate: React.FC<ModernTemplateProps> = ({ resumeData, colorPalett
           )}
         </div>
 
-        {/* Main Content Area */}
-        <div className="w-full md:w-2/3 p-5 md:p-6" style={{ backgroundColor: colorPalette.background, color: colorPalette.text }}>
+        {/* Main Content Area - Make it more PDF-friendly with explicit dimensions */}
+        <div 
+          className="w-full md:w-2/3 p-5 md:p-6 flex-grow" 
+          style={{ backgroundColor: colorPalette.background, color: colorPalette.text }}
+        >
           {/* Work Experience Section */}
           {workExperience.length > 0 && (
-            <section>
+            <section className="print:block">
               <h2 
                 className="text-xl font-semibold mb-6 pb-2 border-b"
                 style={{ borderColor: colorPalette.primary, color: colorPalette.primary }}

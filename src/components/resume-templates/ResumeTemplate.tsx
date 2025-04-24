@@ -28,7 +28,7 @@ const ResumeTemplate = forwardRef<HTMLDivElement, ResumeTemplateProps>(
     };
 
     return (
-      <div ref={ref} className="resume-template-container">
+      <div ref={ref} className="resume-template-container w-full h-full">
         {renderTemplate()}
       </div>
     );
