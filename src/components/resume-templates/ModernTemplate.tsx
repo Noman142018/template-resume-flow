@@ -53,10 +53,10 @@ const ModernTemplate: React.FC<ModernTemplateProps> = ({ resumeData, colorPalett
         </div>
       </header>
 
-      <div className="flex flex-col md:flex-row flex-grow">
+      <div className="flex flex-col md:flex-row flex-grow print:flex-row">
         {/* Left Sidebar */}
         <div 
-          className="w-full md:w-1/3 p-5 md:p-6"
+          className="w-full md:w-1/3 p-5 md:p-6 print:w-1/3"
           style={{ backgroundColor: colorPalette.secondary + '20', color: colorPalette.text }}
         >
           {/* Skills Section */}
@@ -125,14 +125,14 @@ const ModernTemplate: React.FC<ModernTemplateProps> = ({ resumeData, colorPalett
           )}
         </div>
 
-        {/* Main Content Area - Make it more PDF-friendly with explicit dimensions */}
+        {/* Main Content Area */}
         <div 
-          className="w-full md:w-2/3 p-5 md:p-6 flex-grow" 
+          className="w-full md:w-2/3 p-5 md:p-6 flex-grow print:w-2/3" 
           style={{ backgroundColor: colorPalette.background, color: colorPalette.text }}
         >
           {/* Work Experience Section */}
           {workExperience.length > 0 && (
-            <section className="print:block">
+            <section>
               <h2 
                 className="text-xl font-semibold mb-6 pb-2 border-b"
                 style={{ borderColor: colorPalette.primary, color: colorPalette.primary }}
@@ -176,6 +176,21 @@ const ModernTemplate: React.FC<ModernTemplateProps> = ({ resumeData, colorPalett
           )}
         </div>
       </div>
+
+      {/* Add print-specific styles */}
+      <style jsx>{`
+        @media print {
+          .print\\:flex-row {
+            flex-direction: row;
+          }
+          .print\\:w-1\\/3 {
+            width: 33.333333%;
+          }
+          .print\\:w-2\\/3 {
+            width: 66.666667%;
+          }
+        }
+      `}</style>
     </div>
   );
 };

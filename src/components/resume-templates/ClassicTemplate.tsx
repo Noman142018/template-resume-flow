@@ -18,8 +18,8 @@ const ClassicTemplate: React.FC<ClassicTemplateProps> = ({ resumeData, colorPale
         color: colorPalette.text,
       }}
     >
-      {/* Header with centered profile image */}
-      <header className="mb-6 pb-6 border-b flex flex-col items-center" style={{ borderColor: colorPalette.primary }}>
+      {/* Header */}
+      <header className="mb-6 pb-4 border-b flex flex-col items-center" style={{ borderColor: colorPalette.primary }}>
         {/* Profile Picture - Centered */}
         {personalDetails.profilePicture && (
           <div className="mb-4">
@@ -63,118 +63,160 @@ const ClassicTemplate: React.FC<ClassicTemplateProps> = ({ resumeData, colorPale
         )}
       </header>
 
-      {/* Main Content - Modified to ensure PDF compatibility */}
-      <div className="space-y-6 print:block">
-        {/* Education Section */}
-        {education.length > 0 && (
-          <section className="mb-6 print:block">
-            <h2 
-              className="text-xl font-semibold mb-3 pb-1 border-b"
-              style={{ color: colorPalette.primary, borderColor: colorPalette.primary + '50' }}
-            >
-              Education
-            </h2>
-            <div className="space-y-4 print:block">
-              {education.map((edu) => (
-                <div key={edu.id} className="print:mb-3">
-                  <div className="flex flex-col md:flex-row md:justify-between md:items-baseline print:flex-row print:justify-between">
-                    <h3 className="font-medium">{edu.degree}</h3>
-                    <div className="text-sm">
-                      {edu.startDate && (
-                        <>
-                          {new Date(edu.startDate).toLocaleDateString('en-US', { 
-                            year: 'numeric', 
-                            month: 'short' 
-                          })}
-                          {' - '}
-                          {edu.endDate 
-                            ? new Date(edu.endDate).toLocaleDateString('en-US', { 
+      {/* Main Content - Two column grid */}
+      <div className="flex-grow grid md:grid-cols-2 gap-6 print:grid-cols-2">
+        {/* Left Column */}
+        <div className="space-y-6">
+          {/* Education Section */}
+          {education.length > 0 && (
+            <section>
+              <h2 
+                className="text-xl font-semibold mb-3 pb-1 border-b"
+                style={{ color: colorPalette.primary, borderColor: colorPalette.primary + '50' }}
+              >
+                Education
+              </h2>
+              <div className="space-y-4">
+                {education.map((edu) => (
+                  <div key={edu.id} className="mb-3">
+                    <div className="flex flex-col md:flex-row md:justify-between md:items-baseline">
+                      <h3 className="font-medium">{edu.degree}</h3>
+                      <div className="text-sm">
+                        {edu.startDate && (
+                          <>
+                            {new Date(edu.startDate).toLocaleDateString('en-US', { 
                               year: 'numeric', 
                               month: 'short' 
-                            })
-                            : 'Present'
-                          }
-                        </>
-                      )}
+                            })}
+                            {' - '}
+                            {edu.endDate 
+                              ? new Date(edu.endDate).toLocaleDateString('en-US', { 
+                                year: 'numeric', 
+                                month: 'short' 
+                              })
+                              : 'Present'
+                            }
+                          </>
+                        )}
+                      </div>
                     </div>
+                    <div>{edu.institution}</div>
+                    <div className="text-sm">{edu.fieldOfStudy}</div>
                   </div>
-                  <div>{edu.institution}</div>
-                  <div className="text-sm">{edu.fieldOfStudy}</div>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
+                ))}
+              </div>
+            </section>
+          )}
 
-        {/* Work Experience Section */}
-        {workExperience.length > 0 && (
-          <section className="mb-6 print:block">
-            <h2 
-              className="text-xl font-semibold mb-3 pb-1 border-b"
-              style={{ color: colorPalette.primary, borderColor: colorPalette.primary + '50' }}
-            >
-              Work Experience
-            </h2>
-            <div className="space-y-5 print:block">
-              {workExperience.map((exp) => (
-                <div key={exp.id} className="print:mb-4">
-                  <div className="flex flex-col md:flex-row md:justify-between md:items-baseline print:flex-row print:justify-between">
-                    <h3 className="font-medium">{exp.jobTitle}</h3>
-                    <div className="text-sm">
-                      {exp.startDate && (
-                        <>
-                          {new Date(exp.startDate).toLocaleDateString('en-US', { 
-                            year: 'numeric', 
-                            month: 'short' 
-                          })}
-                          {' - '}
-                          {exp.endDate 
-                            ? new Date(exp.endDate).toLocaleDateString('en-US', { 
+          {/* Skills Section */}
+          {skills.length > 0 && (
+            <section>
+              <h2 
+                className="text-xl font-semibold mb-3 pb-1 border-b"
+                style={{ color: colorPalette.primary, borderColor: colorPalette.primary + '50' }}
+              >
+                Skills
+              </h2>
+              <div className="flex flex-wrap gap-2">
+                {skills.map((skill) => (
+                  <span 
+                    key={skill.id}
+                    className="px-3 py-1 rounded-full text-sm print:inline-block print:mr-2 print:mb-2"
+                    style={{ 
+                      backgroundColor: colorPalette.secondary,
+                      color: colorPalette.background
+                    }}
+                  >
+                    {skill.name}
+                  </span>
+                ))}
+              </div>
+            </section>
+          )}
+        </div>
+
+        {/* Right Column */}
+        <div className="space-y-6">
+          {/* Work Experience Section */}
+          {workExperience.length > 0 && (
+            <section>
+              <h2 
+                className="text-xl font-semibold mb-3 pb-1 border-b"
+                style={{ color: colorPalette.primary, borderColor: colorPalette.primary + '50' }}
+              >
+                Work Experience
+              </h2>
+              <div className="space-y-5">
+                {workExperience.map((exp) => (
+                  <div key={exp.id}>
+                    <div className="flex flex-col md:flex-row md:justify-between md:items-baseline">
+                      <h3 className="font-medium">{exp.jobTitle}</h3>
+                      <div className="text-sm">
+                        {exp.startDate && (
+                          <>
+                            {new Date(exp.startDate).toLocaleDateString('en-US', { 
                               year: 'numeric', 
                               month: 'short' 
-                            })
-                            : 'Present'
-                          }
-                        </>
-                      )}
+                            })}
+                            {' - '}
+                            {exp.endDate 
+                              ? new Date(exp.endDate).toLocaleDateString('en-US', { 
+                                year: 'numeric', 
+                                month: 'short' 
+                              })
+                              : 'Present'
+                            }
+                          </>
+                        )}
+                      </div>
                     </div>
+                    <div className="font-medium">{exp.company}</div>
+                    {exp.description && (
+                      <p className="text-sm mt-2 whitespace-pre-line">{exp.description}</p>
+                    )}
                   </div>
-                  <div className="font-medium">{exp.company}</div>
-                  {exp.description && (
-                    <p className="text-sm mt-2 whitespace-pre-line">{exp.description}</p>
-                  )}
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-        
-        {/* Skills Section */}
-        {skills.length > 0 && (
-          <section className="mb-6 print:block">
-            <h2 
-              className="text-xl font-semibold mb-3 pb-1 border-b"
-              style={{ color: colorPalette.primary, borderColor: colorPalette.primary + '50' }}
-            >
-              Skills
-            </h2>
-            <div className="flex flex-wrap gap-2 print:flex print:flex-wrap">
-              {skills.map((skill) => (
-                <span 
-                  key={skill.id}
-                  className="px-3 py-1 rounded-full text-sm print:inline-block print:mr-2 print:mb-2"
-                  style={{ 
-                    backgroundColor: colorPalette.secondary,
-                    color: colorPalette.background
-                  }}
-                >
-                  {skill.name}
-                </span>
-              ))}
-            </div>
-          </section>
-        )}
+                ))}
+              </div>
+            </section>
+          )}
+        </div>
       </div>
+
+      {/* Add print-specific styles */}
+      <style jsx>{`
+        @media print {
+          .print\\:grid-cols-2 {
+            grid-template-columns: 1fr 1fr;
+          }
+          .print\\:block {
+            display: block;
+          }
+          .print\\:flex {
+            display: flex;
+          }
+          .print\\:flex-wrap {
+            flex-wrap: wrap;
+          }
+          .print\\:inline-block {
+            display: inline-block;
+          }
+          .print\\:mr-2 {
+            margin-right: 0.5rem;
+          }
+          .print\\:mb-2 {
+            margin-bottom: 0.5rem;
+          }
+          .print\\:mb-3 {
+            margin-bottom: 0.75rem;
+          }
+          .print\\:mb-4 {
+            margin-bottom: 1rem;
+          }
+          .print\\:justify-between {
+            justify-content: space-between;
+          }
+        }
+      `}</style>
     </div>
   );
 };

@@ -28,7 +28,7 @@ const ResumeTemplate = forwardRef<HTMLDivElement, ResumeTemplateProps>(
     };
 
     return (
-      <div ref={ref} className="resume-template-container w-full h-full">
+      <div ref={ref} className="resume-template-container w-full h-full" style={{ pageBreakInside: 'avoid' }}>
         {renderTemplate()}
       </div>
     );

@@ -16,14 +16,11 @@ export default function Preview() {
   const resumeRef = useRef<HTMLDivElement>(null);
   const { toPDF, targetRef } = usePDF({
     filename: `${resumeData.personalDetails.fullName.replace(/\s+/g, '_')}_Resume.pdf`,
+    method: 'save',
     page: {
-      // Set explicit dimensions for A4
-      width: 210,
-      height: 297,
-      unit: 'mm',
+      format: 'a4',
       orientation: 'portrait',
-    },
-    method: 'save'
+    }
   });
   const navigate = useNavigate();
   const isMobile = useIsMobile();
@@ -105,11 +102,11 @@ export default function Preview() {
           {/* The actual resume preview - Mobile friendly container */}
           <div className="flex justify-center p-2 md:p-4 bg-gray-50 overflow-auto">
             <div 
-              className={`w-full bg-white shadow-sm ${
-                isMobile ? 'max-w-full min-h-[500px]' : 'max-w-[800px] aspect-[210/297]'
-              }`}
+              className="w-full bg-white shadow-sm"
               style={{
-                height: isMobile ? 'auto' : undefined,
+                maxWidth: isMobile ? 'none' : '800px',
+                minHeight: isMobile ? '500px' : undefined,
+                aspectRatio: '1 / 1.414', // A4 aspect ratio
               }}
             >
               <div className="h-full w-full">
