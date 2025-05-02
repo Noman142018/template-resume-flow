@@ -1,15 +1,19 @@
 
-import { useRef } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import ResumeBuilderLayout from "@/components/ResumeBuilderLayout";
 import NavigationButtons from "@/components/NavigationButtons";
 import { useResume } from "@/context/ResumeContext";
 import { Button } from "@/components/ui/button";
-import { Download, RefreshCw } from "lucide-react";
+import { Download, RefreshCw, Save } from "lucide-react";
 import ResumeTemplate from '@/components/resume-templates/ResumeTemplate';
 import { usePDF } from 'react-to-pdf';
 import { colorPalettes, resumeTemplates } from '@/context/ResumeContext';
 import { useNavigate } from "react-router-dom";
-import { useIsMobile } from '@/hooks/use-mobile';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from "@/integrations/supabase/client";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
+import AuthForm from '@/components/auth/AuthForm';
 
 export default function Preview() {
   const { resumeData, updateTemplate } = useResume();
@@ -20,19 +24,96 @@ export default function Preview() {
     page: {
       format: 'a4',
       orientation: 'portrait',
-    }
+    },
+    canvas: {
+      // Improve PDF quality with higher scale
+      scale: 2,
+    },
   });
+  
   const navigate = useNavigate();
-  const isMobile = useIsMobile();
+  const { toast } = useToast();
+  const [user, setUser] = useState<any>(null);
+  const [session, setSession] = useState<any>(null);
+  const [showAuthDialog, setShowAuthDialog] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   
   // Get selected template and color palette for display
   const selectedTemplate = resumeTemplates.find(t => t.id === resumeData.selectedTemplate) || resumeTemplates[0];
   const selectedPalette = colorPalettes.find(p => p.id === resumeData.selectedColorPalette) || colorPalettes[0];
   
+  // Check for authenticated user
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+    });
+
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
   // Switch between templates
   const switchTemplate = () => {
     const newTemplateId = resumeData.selectedTemplate === 'classic' ? 'modern' : 'classic';
     updateTemplate(newTemplateId);
+  };
+
+  // Handle download request
+  const handleDownload = async () => {
+    if (!user) {
+      setShowAuthDialog(true);
+      return;
+    }
+    toPDF();
+  };
+
+  // Save resume to database
+  const saveResume = async () => {
+    if (!user) {
+      setShowAuthDialog(true);
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const { data, error } = await supabase.from('resumes').insert({
+        user_id: user.id,
+        data: resumeData,
+        name: resumeData.personalDetails.fullName 
+          ? `${resumeData.personalDetails.fullName}'s Resume`
+          : 'My Resume'
+      });
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Resume saved!",
+        description: "Your resume has been saved to your account.",
+      });
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error saving resume",
+        description: error.message || "Failed to save your resume. Please try again.",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Handle successful auth
+  const handleAuthSuccess = () => {
+    setShowAuthDialog(false);
+    toast({
+      title: "Authentication successful!",
+      description: "You can now download or save your resume.",
+    });
   };
 
   return (
@@ -70,9 +151,9 @@ export default function Preview() {
               </div>
             </div>
           </div>
-          
-          {/* Change Template Button */}
-          <div className="mt-4 flex justify-end">
+
+          {/* Action Buttons */}
+          <div className="mt-4 flex justify-between">
             <Button 
               onClick={switchTemplate}
               variant="outline"
@@ -81,6 +162,17 @@ export default function Preview() {
             >
               <RefreshCw className="h-4 w-4" />
               Change Template
+            </Button>
+
+            <Button 
+              onClick={saveResume}
+              variant="outline" 
+              size="sm"
+              className="flex items-center gap-2"
+              disabled={isSaving}
+            >
+              <Save className="h-4 w-4" />
+              {isSaving ? 'Saving...' : 'Save Resume'}
             </Button>
           </div>
         </div>
@@ -92,30 +184,52 @@ export default function Preview() {
             <Button 
               variant="outline"
               size="sm"
-              onClick={() => toPDF()}
+              onClick={handleDownload}
               className="flex items-center gap-2"
             >
               <Download className="h-4 w-4" /> Download PDF
             </Button>
           </div>
           
-          {/* The actual resume preview - Mobile friendly container */}
-          <div className="flex justify-center p-2 md:p-4 bg-gray-50 overflow-auto">
+          {/* Enhanced resume preview container with proper sizing */}
+          <div className="flex justify-center p-4 bg-gray-50 overflow-auto">
             <div 
-              className="w-full bg-white shadow-sm"
+              className="bg-white shadow-sm transition-transform scale-100 hover:scale-[1.02] origin-top"
               style={{
-                maxWidth: isMobile ? 'none' : '800px',
-                minHeight: isMobile ? '500px' : undefined,
-                aspectRatio: '1 / 1.414', // A4 aspect ratio
+                width: '210mm', // A4 width
+                height: '297mm', // A4 height
+                maxHeight: '80vh', // Limit height for viewport
               }}
             >
-              <div className="h-full w-full">
-                <ResumeTemplate ref={targetRef} resumeData={resumeData} />
+              <div className="h-full w-full" ref={targetRef}>
+                <ResumeTemplate resumeData={resumeData} />
               </div>
             </div>
           </div>
         </div>
       </div>
+      
+      {/* Authentication Dialog */}
+      <Dialog open={showAuthDialog} onOpenChange={setShowAuthDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Authentication Required</DialogTitle>
+            <DialogDescription>
+              Please sign in or create an account to download or save your resume.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <Separator className="my-4" />
+          
+          <AuthForm onAuthSuccess={handleAuthSuccess} />
+          
+          <DialogFooter className="mt-4">
+            <Button variant="outline" onClick={() => setShowAuthDialog(false)}>
+              Cancel
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       
       <NavigationButtons prevPath="/work-experience" />
     </ResumeBuilderLayout>

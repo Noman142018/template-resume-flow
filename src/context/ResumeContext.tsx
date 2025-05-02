@@ -1,3 +1,4 @@
+
 import { createContext, useContext, useState, ReactNode } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { ColorPalette, Education, PersonalDetails, ResumeData, ResumeTemplate, Skill, WorkExperience } from '@/types/resume';
@@ -53,6 +54,7 @@ type ResumeContextType = {
   removeSkill: (id: string) => void;
   updateTemplate: (templateId: string) => void;
   updateColorPalette: (paletteId: string) => void;
+  updateState: (state: ResumeData) => void; // New function to update entire state
 };
 
 const ResumeContext = createContext<ResumeContextType | undefined>(undefined);
@@ -165,6 +167,11 @@ export function ResumeProvider({ children }: { children: ReactNode }) {
     }));
   };
 
+  // New function to update entire state (for loading saved resumes)
+  const updateState = (state: ResumeData) => {
+    setResumeData(state);
+  };
+
   return (
     <ResumeContext.Provider
       value={{
@@ -182,6 +189,7 @@ export function ResumeProvider({ children }: { children: ReactNode }) {
         removeSkill,
         updateTemplate,
         updateColorPalette,
+        updateState,
       }}
     >
       {children}

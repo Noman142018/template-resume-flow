@@ -1,66 +1,115 @@
 
-import ResumeBuilderLayout from "@/components/ResumeBuilderLayout";
-import NavigationButtons from "@/components/NavigationButtons";
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import ResumeBuilderLayout from "@/components/ResumeBuilderLayout";
+import { supabase } from "@/integrations/supabase/client";
+import { ArrowRight, User, FileText } from "lucide-react";
 
 export default function Welcome() {
   const navigate = useNavigate();
+  const [user, setUser] = useState<any>(null);
+  
+  // Check for authenticated user
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null);
+    });
 
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+  
   return (
-    <ResumeBuilderLayout
-      title="Resume Builder"
-      subTitle="Create a professional resume in minutes by entering your details and choosing a beautiful template."
+    <ResumeBuilderLayout 
+      title="Create Your Professional Resume" 
       hideProgress
     >
-      <div className="max-w-2xl mx-auto text-center">
-        <div className="mb-12">
-          <div className="mb-8 flex justify-center">
-            <img
-              src="/resume-illustration.svg"
-              alt="Resume Builder"
-              className="h-64"
-            />
-          </div>
-          <p className="text-gray-600 mb-8">
-            Our easy-to-use resume builder will help you create a professional
-            resume that showcases your skills, experience, and education. Just
-            follow the steps, fill in your details, and download your resume in
-            PDF format.
+      <div className="flex flex-col md:flex-row gap-8">
+        <div className="md:w-1/2 space-y-6">
+          <h3 className="text-2xl font-medium text-gray-800">Resume Builder</h3>
+          <p className="text-gray-600">
+            Create a professional resume in minutes. Choose a template, add your information, and download your resume.
           </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
-            <Button
+          <div className="flex flex-col sm:flex-row gap-4">
+            <Button 
+              onClick={() => navigate("/template")} 
               size="lg"
-              className="text-lg px-8"
-              onClick={() => navigate("/template")}
+              className="flex gap-2 items-center"
             >
-              Start Building
+              <FileText className="w-4 h-4" />
+              Create Resume <ArrowRight className="ml-1 h-4 w-4" />
             </Button>
+
+            {user ? (
+              <Button 
+                variant="outline" 
+                onClick={() => navigate("/account")} 
+                size="lg"
+                className="flex gap-2 items-center"
+              >
+                <User className="w-4 h-4" />
+                My Account
+              </Button>
+            ) : (
+              <Button 
+                variant="outline" 
+                onClick={() => navigate("/preview")} 
+                size="lg"
+                className="flex gap-2 items-center"
+              >
+                <User className="w-4 h-4" />
+                Sign In
+              </Button>
+            )}
+          </div>
+          <div className="mt-6 space-y-4">
+            <div className="flex items-start gap-3">
+              <div className="bg-blue-100 p-2 rounded-full">
+                <FileText className="h-5 w-5 text-blue-700" />
+              </div>
+              <div>
+                <h4 className="font-medium">Professional Templates</h4>
+                <p className="text-gray-600 text-sm">
+                  Choose from modern and classic templates that will make your resume stand out.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <div className="bg-green-100 p-2 rounded-full">
+                <FileText className="h-5 w-5 text-green-700" />
+              </div>
+              <div>
+                <h4 className="font-medium">Easy to Use</h4>
+                <p className="text-gray-600 text-sm">
+                  Our simple step-by-step process makes creating a resume quick and easy.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <div className="bg-purple-100 p-2 rounded-full">
+                <FileText className="h-5 w-5 text-purple-700" />
+              </div>
+              <div>
+                <h4 className="font-medium">Download & Save</h4>
+                <p className="text-gray-600 text-sm">
+                  Download your resume as a PDF and save it to your account for future edits.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
-
-        <div className="pt-12 border-t border-gray-200">
-          <h3 className="text-lg font-semibold mb-4">Why use our Resume Builder?</h3>
-          <div className="grid md:grid-cols-3 gap-6 mt-6">
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h4 className="font-medium mb-2">Professional Templates</h4>
-              <p className="text-sm text-gray-500">
-                Choose from professionally designed templates that catch the eye.
-              </p>
-            </div>
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h4 className="font-medium mb-2">Easy to Use</h4>
-              <p className="text-sm text-gray-500">
-                Simple step-by-step process to create your perfect resume.
-              </p>
-            </div>
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h4 className="font-medium mb-2">PDF Download</h4>
-              <p className="text-sm text-gray-500">
-                Get your resume in a professional PDF format ready to send.
-              </p>
-            </div>
+        <div className="md:w-1/2">
+          <div className="relative">
+            <img 
+              src="/resume-illustration.svg" 
+              alt="Resume illustration" 
+              className="w-full"
+            />
           </div>
         </div>
       </div>

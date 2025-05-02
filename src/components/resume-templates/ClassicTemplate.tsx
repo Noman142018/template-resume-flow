@@ -182,8 +182,8 @@ const ClassicTemplate: React.FC<ClassicTemplateProps> = ({ resumeData, colorPale
         </div>
       </div>
 
-      {/* Add print-specific styles */}
-      <style jsx>{`
+      <style>
+        {`
         @media print {
           .print\\:grid-cols-2 {
             grid-template-columns: 1fr 1fr;
@@ -216,7 +216,8 @@ const ClassicTemplate: React.FC<ClassicTemplateProps> = ({ resumeData, colorPale
             justify-content: space-between;
           }
         }
-      `}</style>
+        `}
+      </style>
     </div>
   );
 };

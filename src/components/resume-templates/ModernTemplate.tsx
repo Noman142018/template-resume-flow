@@ -177,8 +177,8 @@ const ModernTemplate: React.FC<ModernTemplateProps> = ({ resumeData, colorPalett
         </div>
       </div>
 
-      {/* Add print-specific styles */}
-      <style jsx>{`
+      <style>
+        {`
         @media print {
           .print\\:flex-row {
             flex-direction: row;
@@ -190,7 +190,8 @@ const ModernTemplate: React.FC<ModernTemplateProps> = ({ resumeData, colorPalett
             width: 66.666667%;
           }
         }
-      `}</style>
+        `}
+      </style>
     </div>
   );
 };
