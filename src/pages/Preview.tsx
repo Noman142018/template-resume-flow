@@ -4,7 +4,7 @@ import ResumeBuilderLayout from "@/components/ResumeBuilderLayout";
 import NavigationButtons from "@/components/NavigationButtons";
 import { useResume } from "@/context/ResumeContext";
 import { Button } from "@/components/ui/button";
-import { Download, RefreshCw, Save } from "lucide-react";
+import { Download, RefreshCw, Save, ZoomIn, ZoomOut, Maximize } from "lucide-react";
 import ResumeTemplate from '@/components/resume-templates/ResumeTemplate';
 import { usePDF } from 'react-to-pdf';
 import { colorPalettes, resumeTemplates } from '@/context/ResumeContext';
@@ -18,6 +18,7 @@ import AuthForm from '@/components/auth/AuthForm';
 export default function Preview() {
   const { resumeData, updateTemplate } = useResume();
   const resumeRef = useRef<HTMLDivElement>(null);
+  const [zoomLevel, setZoomLevel] = useState(100);
   const { toPDF, targetRef } = usePDF({
     filename: `${resumeData.personalDetails.fullName.replace(/\s+/g, '_')}_Resume.pdf`,
     method: 'save',
@@ -26,8 +27,9 @@ export default function Preview() {
       orientation: 'portrait',
     },
     canvas: {
-      // Improve PDF quality with higher scale
-      scale: 2,
+      // PDF quality settings
+      dpi: 300,
+      mimeType: "image/png",
     },
   });
   
@@ -57,6 +59,19 @@ export default function Preview() {
 
     return () => subscription.unsubscribe();
   }, []);
+
+  // Zoom functions
+  const handleZoomIn = () => {
+    setZoomLevel(prev => Math.min(prev + 20, 200));
+  };
+
+  const handleZoomOut = () => {
+    setZoomLevel(prev => Math.max(prev - 20, 40));
+  };
+
+  const handleResetZoom = () => {
+    setZoomLevel(100);
+  };
 
   // Switch between templates
   const switchTemplate = () => {
@@ -177,32 +192,66 @@ export default function Preview() {
           </div>
         </div>
         
-        {/* Resume Preview Wrapper */}
+        {/* Resume Preview Wrapper with A4 dimensions and zoom controls */}
         <div className="border border-gray-200 rounded-lg overflow-hidden shadow-lg">
           <div className="bg-gray-100 border-b p-4 flex justify-between items-center">
             <h3 className="font-medium">Resume Preview</h3>
-            <Button 
-              variant="outline"
-              size="sm"
-              onClick={handleDownload}
-              className="flex items-center gap-2"
-            >
-              <Download className="h-4 w-4" /> Download PDF
-            </Button>
+            <div className="flex items-center space-x-2">
+              <div className="flex items-center border rounded-md overflow-hidden">
+                <Button 
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleZoomOut}
+                  className="h-8 px-2 rounded-none border-r"
+                >
+                  <ZoomOut className="h-4 w-4" />
+                </Button>
+                <span className="px-2 text-sm font-medium">{zoomLevel}%</span>
+                <Button 
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleZoomIn}
+                  className="h-8 px-2 rounded-none border-l"
+                >
+                  <ZoomIn className="h-4 w-4" />
+                </Button>
+              </div>
+              <Button 
+                variant="ghost"
+                size="sm"
+                onClick={handleResetZoom}
+                className="h-8 px-2"
+              >
+                <Maximize className="h-4 w-4" />
+              </Button>
+              <Button 
+                variant="outline"
+                size="sm"
+                onClick={handleDownload}
+                className="flex items-center gap-2"
+              >
+                <Download className="h-4 w-4" /> Download PDF
+              </Button>
+            </div>
           </div>
           
-          {/* Enhanced resume preview container with proper sizing */}
-          <div className="flex justify-center p-4 bg-gray-50 overflow-auto">
+          {/* Enhanced resume preview container with proper A4 sizing and zoom */}
+          <div className="flex justify-center p-6 bg-gray-50 overflow-auto" style={{ minHeight: "500px" }}>
             <div 
-              className="bg-white shadow-sm transition-transform scale-100 hover:scale-[1.02] origin-top"
+              className="bg-white shadow-sm transition-transform origin-top"
               style={{
                 width: '210mm', // A4 width
                 height: '297mm', // A4 height
-                maxHeight: '80vh', // Limit height for viewport
+                transform: `scale(${zoomLevel / 100})`,
+                transformOrigin: 'top center',
               }}
             >
-              <div className="h-full w-full" ref={targetRef}>
-                <ResumeTemplate resumeData={resumeData} />
+              <div 
+                className="h-full w-full" 
+                ref={targetRef}
+                style={{ overflow: 'hidden' }}
+              >
+                <ResumeTemplate resumeData={resumeData} ref={resumeRef} />
               </div>
             </div>
           </div>

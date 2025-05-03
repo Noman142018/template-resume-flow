@@ -34,7 +34,12 @@ const ResumeTemplate = forwardRef<HTMLDivElement, ResumeTemplateProps>(
         style={{ 
           pageBreakInside: 'avoid',
           boxSizing: 'border-box',
-          overflow: 'hidden'
+          overflow: 'hidden',
+          backgroundColor: 'white',
+          position: 'relative',
+          // A4 dimensions preserved
+          width: '210mm',
+          height: '297mm',
         }}
       >
         {renderTemplate()}
