@@ -1,11 +1,10 @@
 
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useState } from 'react';
 import ResumeBuilderLayout from "@/components/ResumeBuilderLayout";
 import NavigationButtons from "@/components/NavigationButtons";
 import { useResume } from "@/context/ResumeContext";
 import { Button } from "@/components/ui/button";
-import { Download, RefreshCw, Save, ZoomIn, ZoomOut, Maximize } from "lucide-react";
-import ResumeTemplate from '@/components/resume-templates/ResumeTemplate';
+import { Download, Eye, Save } from "lucide-react";
 import { usePDF } from 'react-to-pdf';
 import { colorPalettes, resumeTemplates } from '@/context/ResumeContext';
 import { useNavigate } from "react-router-dom";
@@ -18,7 +17,6 @@ import AuthForm from '@/components/auth/AuthForm';
 export default function Preview() {
   const { resumeData, updateTemplate } = useResume();
   const resumeRef = useRef<HTMLDivElement>(null);
-  const [zoomLevel, setZoomLevel] = useState(100);
   const { toPDF, targetRef } = usePDF({
     filename: `${resumeData.personalDetails.fullName.replace(/\s+/g, '_')}_Resume.pdf`,
     method: 'save',
@@ -27,8 +25,7 @@ export default function Preview() {
       orientation: 'portrait',
     },
     canvas: {
-      // PDF quality settings
-      dpi: 300,
+      // Use appropriate PDF quality settings
       mimeType: "image/png",
     },
   });
@@ -45,7 +42,7 @@ export default function Preview() {
   const selectedPalette = colorPalettes.find(p => p.id === resumeData.selectedColorPalette) || colorPalettes[0];
   
   // Check for authenticated user
-  useEffect(() => {
+  useState(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
@@ -58,25 +55,19 @@ export default function Preview() {
     });
 
     return () => subscription.unsubscribe();
-  }, []);
-
-  // Zoom functions
-  const handleZoomIn = () => {
-    setZoomLevel(prev => Math.min(prev + 20, 200));
-  };
-
-  const handleZoomOut = () => {
-    setZoomLevel(prev => Math.max(prev - 20, 40));
-  };
-
-  const handleResetZoom = () => {
-    setZoomLevel(100);
-  };
+  });
 
   // Switch between templates
   const switchTemplate = () => {
     const newTemplateId = resumeData.selectedTemplate === 'classic' ? 'modern' : 'classic';
     updateTemplate(newTemplateId);
+  };
+
+  // Open resume in new tab
+  const handleOpenPreview = () => {
+    // Store resume data in session storage temporarily for the preview page
+    sessionStorage.setItem('previewResumeData', JSON.stringify(resumeData));
+    window.open('/resume-preview', '_blank');
   };
 
   // Handle download request
@@ -133,8 +124,8 @@ export default function Preview() {
 
   return (
     <ResumeBuilderLayout
-      title="Preview & Download"
-      subTitle="Review your resume and download a PDF copy."
+      title="Finalize Your Resume"
+      subTitle="Preview, save or download your resume as a PDF."
     >
       <div className="space-y-6">
         {/* Resume Information */}
@@ -168,21 +159,18 @@ export default function Preview() {
           </div>
 
           {/* Action Buttons */}
-          <div className="mt-4 flex justify-between">
+          <div className="mt-4 flex flex-wrap gap-3">
             <Button 
               onClick={switchTemplate}
-              variant="outline"
-              size="sm"
+              variant="outline" 
               className="flex items-center gap-2"
             >
-              <RefreshCw className="h-4 w-4" />
               Change Template
             </Button>
 
             <Button 
               onClick={saveResume}
               variant="outline" 
-              size="sm"
               className="flex items-center gap-2"
               disabled={isSaving}
             >
@@ -192,65 +180,46 @@ export default function Preview() {
           </div>
         </div>
         
-        {/* Resume Preview Wrapper with A4 dimensions and zoom controls */}
-        <div className="border border-gray-200 rounded-lg overflow-hidden shadow-lg">
-          <div className="bg-gray-100 border-b p-4 flex justify-between items-center">
-            <h3 className="font-medium">Resume Preview</h3>
-            <div className="flex items-center space-x-2">
-              <div className="flex items-center border rounded-md overflow-hidden">
-                <Button 
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleZoomOut}
-                  className="h-8 px-2 rounded-none border-r"
+        {/* Main Action Buttons */}
+        <div className="flex flex-col space-y-4">
+          <div className="p-6 bg-white border rounded-lg shadow-sm">
+            <h3 className="font-medium text-lg mb-4">Resume Actions</h3>
+            
+            <div className="space-y-6">
+              <div>
+                <h4 className="text-sm font-medium mb-2">Preview Your Resume</h4>
+                <p className="text-sm text-gray-500 mb-3">
+                  Click the button below to open your resume in a new tab for full-page preview with zoom functionality.
+                </p>
+                <Button
+                  onClick={handleOpenPreview}
+                  className="w-full sm:w-auto flex items-center justify-center gap-2"
                 >
-                  <ZoomOut className="h-4 w-4" />
-                </Button>
-                <span className="px-2 text-sm font-medium">{zoomLevel}%</span>
-                <Button 
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleZoomIn}
-                  className="h-8 px-2 rounded-none border-l"
-                >
-                  <ZoomIn className="h-4 w-4" />
+                  <Eye className="h-4 w-4" /> Preview Resume
                 </Button>
               </div>
-              <Button 
-                variant="ghost"
-                size="sm"
-                onClick={handleResetZoom}
-                className="h-8 px-2"
-              >
-                <Maximize className="h-4 w-4" />
-              </Button>
-              <Button 
-                variant="outline"
-                size="sm"
-                onClick={handleDownload}
-                className="flex items-center gap-2"
-              >
-                <Download className="h-4 w-4" /> Download PDF
-              </Button>
+              
+              <div>
+                <h4 className="text-sm font-medium mb-2">Download As PDF</h4>
+                <p className="text-sm text-gray-500 mb-3">
+                  Generate and download your resume as a PDF file. You'll need to sign in first if you haven't already.
+                </p>
+                <Button 
+                  onClick={handleDownload}
+                  variant="default"
+                  className="w-full sm:w-auto flex items-center justify-center gap-2"
+                >
+                  <Download className="h-4 w-4" /> Download PDF
+                </Button>
+              </div>
             </div>
           </div>
           
-          {/* Enhanced resume preview container with proper A4 sizing and zoom */}
-          <div className="flex justify-center p-6 bg-gray-50 overflow-auto" style={{ minHeight: "500px" }}>
-            <div 
-              className="bg-white shadow-sm transition-transform origin-top"
-              style={{
-                width: '210mm', // A4 width
-                height: '297mm', // A4 height
-                transform: `scale(${zoomLevel / 100})`,
-                transformOrigin: 'top center',
-              }}
-            >
-              <div 
-                className="h-full w-full" 
-                ref={targetRef}
-                style={{ overflow: 'hidden' }}
-              >
+          {/* Hidden div for PDF generation */}
+          <div className="hidden">
+            <div ref={targetRef} className="w-[210mm] h-[297mm]">
+              {/* This div is only used for PDF generation */}
+              <div className="w-full h-full">
                 <ResumeTemplate resumeData={resumeData} ref={resumeRef} />
               </div>
             </div>
@@ -284,3 +253,6 @@ export default function Preview() {
     </ResumeBuilderLayout>
   );
 }
+
+// Missing import for ResumeTemplate
+import ResumeTemplate from '@/components/resume-templates/ResumeTemplate';

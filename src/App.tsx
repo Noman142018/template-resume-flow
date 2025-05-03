@@ -14,6 +14,7 @@ import Education from "./pages/Education";
 import WorkExperience from "./pages/WorkExperience";
 import Preview from "./pages/Preview";
 import Account from "./pages/Account";
+import ResumePreview from "./pages/ResumePreview";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +32,7 @@ const App = () => (
             <Route path="/education" element={<Education />} />
             <Route path="/work-experience" element={<WorkExperience />} />
             <Route path="/preview" element={<Preview />} />
+            <Route path="/resume-preview" element={<ResumePreview />} />
             <Route path="/account" element={<Account />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

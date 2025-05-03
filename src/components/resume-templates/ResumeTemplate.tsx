@@ -37,7 +37,7 @@ const ResumeTemplate = forwardRef<HTMLDivElement, ResumeTemplateProps>(
           overflow: 'hidden',
           backgroundColor: 'white',
           position: 'relative',
-          // A4 dimensions preserved
+          // A4 dimensions
           width: '210mm',
           height: '297mm',
         }}
