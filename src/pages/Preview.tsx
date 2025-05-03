@@ -1,4 +1,3 @@
-
 import { useRef, useState } from 'react';
 import ResumeBuilderLayout from "@/components/ResumeBuilderLayout";
 import NavigationButtons from "@/components/NavigationButtons";
@@ -13,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import AuthForm from '@/components/auth/AuthForm';
+import ResumeTemplate from '@/components/resume-templates/ResumeTemplate';
 
 export default function Preview() {
   const { resumeData, updateTemplate } = useResume();
@@ -25,7 +25,6 @@ export default function Preview() {
       orientation: 'portrait',
     },
     canvas: {
-      // Use appropriate PDF quality settings
       mimeType: "image/png",
     },
   });
@@ -59,8 +58,7 @@ export default function Preview() {
 
   // Switch between templates
   const switchTemplate = () => {
-    const newTemplateId = resumeData.selectedTemplate === 'classic' ? 'modern' : 'classic';
-    updateTemplate(newTemplateId);
+    navigate('/template');
   };
 
   // Open resume in new tab
@@ -162,8 +160,7 @@ export default function Preview() {
           <div className="mt-4 flex flex-wrap gap-3">
             <Button 
               onClick={switchTemplate}
-              variant="outline" 
-              className="flex items-center gap-2"
+              className="font-medium border-2 border-black py-2 px-5 bg-black text-white hover:bg-gray-800"
             >
               Change Template
             </Button>
@@ -218,10 +215,7 @@ export default function Preview() {
           {/* Hidden div for PDF generation */}
           <div className="hidden">
             <div ref={targetRef} className="w-[210mm] h-[297mm]">
-              {/* This div is only used for PDF generation */}
-              <div className="w-full h-full">
-                <ResumeTemplate resumeData={resumeData} ref={resumeRef} />
-              </div>
+              <ResumeTemplate resumeData={resumeData} ref={resumeRef} />
             </div>
           </div>
         </div>
@@ -253,6 +247,3 @@ export default function Preview() {
     </ResumeBuilderLayout>
   );
 }
-
-// Missing import for ResumeTemplate
-import ResumeTemplate from '@/components/resume-templates/ResumeTemplate';

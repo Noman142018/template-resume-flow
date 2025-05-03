@@ -23,6 +23,7 @@ export default function ResumePreview() {
     },
     canvas: {
       mimeType: "image/png",
+      quality: 1,
     },
   });
 
@@ -37,19 +38,51 @@ export default function ResumePreview() {
         console.error('Failed to parse resume data:', error);
       }
     }
+    
+    // Set initial zoom level based on screen width for better mobile experience
+    const setInitialZoom = () => {
+      const screenWidth = window.innerWidth;
+      if (screenWidth < 768) {
+        // For mobile, use a smaller zoom level
+        setZoomLevel(70);
+      } else if (screenWidth < 1024) {
+        // For tablets
+        setZoomLevel(85);
+      } else {
+        // For desktops
+        setZoomLevel(100);
+      }
+    };
+    
+    setInitialZoom();
+    
+    // Add event listener for pinch-to-zoom for mobile
+    const preventDefault = (e: TouchEvent) => {
+      e.preventDefault();
+    };
+    
+    document.addEventListener('touchmove', preventDefault, { passive: false });
+    
+    return () => {
+      document.removeEventListener('touchmove', preventDefault);
+    };
   }, []);
 
   // Zoom functions
   const handleZoomIn = () => {
-    setZoomLevel(prev => Math.min(prev + 20, 200));
+    setZoomLevel(prev => Math.min(prev + 10, 200));
   };
 
   const handleZoomOut = () => {
-    setZoomLevel(prev => Math.max(prev - 20, 40));
+    setZoomLevel(prev => Math.max(prev - 10, 40));
   };
 
   const handleResetZoom = () => {
     setZoomLevel(100);
+  };
+
+  const handleDownload = () => {
+    toPDF();
   };
 
   if (!resumeData) {
@@ -70,10 +103,8 @@ export default function ResumePreview() {
     <div className="min-h-screen bg-gray-100 flex flex-col">
       {/* Toolbar */}
       <div className="bg-white border-b py-3 px-4 flex justify-between items-center sticky top-0 z-10 shadow-sm">
-        <div className="text-lg font-medium">Resume Preview</div>
-        
-        <div className="flex items-center space-x-2">
-          {/* Zoom controls */}
+        <div className="flex items-center space-x-4">
+          {/* Zoom controls - moved to left */}
           <div className="flex items-center border rounded-md overflow-hidden bg-white">
             <Button 
               variant="ghost"
@@ -98,15 +129,17 @@ export default function ResumePreview() {
               <ZoomIn className="h-4 w-4" />
             </Button>
           </div>
-          
-          {/* Download button */}
-          <Button 
-            onClick={() => toPDF()}
-            className="flex items-center gap-2"
-          >
-            <Download className="h-4 w-4" /> Download PDF
-          </Button>
         </div>
+        
+        <div className="text-lg font-medium text-center flex-1">Resume Preview</div>
+        
+        {/* Download button - moved to right */}
+        <Button 
+          onClick={handleDownload}
+          className="flex items-center gap-2"
+        >
+          <Download className="h-4 w-4" /> Download PDF
+        </Button>
       </div>
       
       {/* Notice bar */}
@@ -115,17 +148,30 @@ export default function ResumePreview() {
       </div>
 
       {/* Resume Preview Container */}
-      <div className="flex-1 overflow-auto py-8 px-4">
-        <div className="mx-auto" style={{ maxWidth: '900px' }}>
+      <div 
+        className="flex-1 overflow-auto py-8 px-4"
+        style={{
+          touchAction: "manipulation",
+          WebkitOverflowScrolling: "touch"
+        }}
+      >
+        <div 
+          className="mx-auto" 
+          style={{ 
+            maxWidth: '900px',
+            padding: '0 20px'
+          }}
+        >
           {/* A4-sized container that scales with zoom */}
           <div 
-            className="bg-white shadow-lg mx-auto transition-transform origin-top"
+            className="bg-white shadow-lg mx-auto transition-transform"
             style={{
               width: '210mm', 
               height: '297mm', 
               transform: `scale(${zoomLevel / 100})`,
               transformOrigin: 'top center',
-              marginBottom: `${zoomLevel > 100 ? ((zoomLevel - 100) * 2.97) : 0}mm`
+              marginBottom: `${zoomLevel > 100 ? ((zoomLevel - 100) * 2.97) : 0}mm`,
+              margin: '0 auto'
             }}
           >
             {/* Resume content */}
