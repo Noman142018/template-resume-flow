@@ -27,6 +27,16 @@ const ResumeTemplate = forwardRef<HTMLDivElement, ResumeTemplateProps>(
       }
     };
 
+    // Ensure we have valid data before rendering
+    if (!resumeData || !resumeData.personalDetails) {
+      console.error("Invalid resume data provided to ResumeTemplate", resumeData);
+      return (
+        <div ref={ref} className="resume-error p-4 text-center">
+          <p>Error: Invalid resume data</p>
+        </div>
+      );
+    }
+
     return (
       <div 
         ref={ref} 
@@ -34,10 +44,8 @@ const ResumeTemplate = forwardRef<HTMLDivElement, ResumeTemplateProps>(
         style={{ 
           pageBreakInside: 'avoid',
           boxSizing: 'border-box',
-          overflow: 'hidden',
           backgroundColor: 'white',
           position: 'relative',
-          // These ensure PDF generation uses full A4 dimensions
           width: '100%',
           height: '100%',
         }}

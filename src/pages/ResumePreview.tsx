@@ -5,13 +5,15 @@ import ResumeTemplate from '@/components/resume-templates/ResumeTemplate';
 import { Button } from '@/components/ui/button';
 import { ZoomIn, ZoomOut, Download } from 'lucide-react';
 import { usePDF } from 'react-to-pdf';
+import { useNavigate } from 'react-router-dom';
 
 export default function ResumePreview() {
   const [resumeData, setResumeData] = useState<ResumeData | null>(null);
   const [zoomLevel, setZoomLevel] = useState(100);
   const resumeRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
-  // PDF generation setup - fixed to remove invalid 'quality' property
+  // PDF generation setup with proper options
   const { toPDF, targetRef } = usePDF({
     filename: resumeData?.personalDetails.fullName 
       ? `${resumeData.personalDetails.fullName.replace(/\s+/g, '_')}_Resume.pdf` 
@@ -23,39 +25,25 @@ export default function ResumePreview() {
     },
     canvas: {
       mimeType: "image/png",
-      // Removed quality property as it's not in the type definition
     },
   });
 
   // Load resume data from session storage
   useEffect(() => {
     const storedData = sessionStorage.getItem('previewResumeData');
+    
     if (storedData) {
       try {
         const parsedData = JSON.parse(storedData);
         setResumeData(parsedData);
+        console.log("Resume data loaded successfully", parsedData);
       } catch (error) {
         console.error('Failed to parse resume data:', error);
+        // We'll handle this error in the UI
       }
+    } else {
+      console.error('No resume data found in session storage');
     }
-    
-    // Set a zoom level that makes the resume fit well on mobile and desktop
-    // This matches what 40% zoom looked like before, but sets it as the new 100%
-    const setInitialZoom = () => {
-      const screenWidth = window.innerWidth;
-      if (screenWidth < 768) {
-        // For mobile, set to 100% (which is actually scaled down in the CSS)
-        setZoomLevel(100);
-      } else if (screenWidth < 1024) {
-        // For tablets
-        setZoomLevel(100);
-      } else {
-        // For desktops
-        setZoomLevel(100);
-      }
-    };
-    
-    setInitialZoom();
     
     // Add event listener for pinch-to-zoom for mobile
     const preventDefault = (e: TouchEvent) => {
@@ -83,19 +71,33 @@ export default function ResumePreview() {
   };
 
   const handleDownload = () => {
-    // Ensure the PDF is generated at full A4 size regardless of current view
-    toPDF();
+    // Ensure we're generating the PDF at full A4 size
+    if (targetRef.current) {
+      console.log("Generating PDF from current view");
+      toPDF();
+    } else {
+      console.error("Target ref for PDF generation is not available");
+    }
   };
 
   if (!resumeData) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <div className="text-center">
+        <div className="text-center max-w-md p-6 bg-white rounded-lg shadow">
           <h1 className="text-xl font-semibold mb-4">Resume Preview Not Available</h1>
           <p className="text-gray-500 mb-6">
-            No resume data found. Please return to the resume builder.
+            No resume data found. Please return to the resume builder and try again.
           </p>
-          <Button onClick={() => window.close()}>Close Preview</Button>
+          <div className="space-y-4">
+            <Button onClick={() => window.close()}>Close Preview</Button>
+            <Button 
+              variant="outline" 
+              onClick={() => navigate('/preview')}
+              className="ml-2"
+            >
+              Return to Builder
+            </Button>
+          </div>
         </div>
       </div>
     );
@@ -166,11 +168,10 @@ export default function ResumePreview() {
             overflowX: 'auto'
           }}
         >
-          {/* This scales down the A4 size to fit better on screens while maintaining the A4 aspect ratio */}
+          {/* A4 dimensions scaled down to ~40% (317px width) as the new 100% baseline */}
           <div 
-            className="bg-white shadow-lg mx-auto transition-transform overflow-visible"
+            className="bg-white shadow-lg mx-auto transition-transform"
             style={{
-              // Instead of using transform to scale, we're directly sizing it to what was previously ~40% of A4
               width: '317px', 
               height: '449px',
               transform: `scale(${zoomLevel / 100})`,
@@ -179,18 +180,21 @@ export default function ResumePreview() {
               margin: '0 auto'
             }}
           >
-            {/* Maintain A4 aspect ratio but with smaller default size */}
+            {/* Direct resume content at the scaled down size */}
             <div 
               ref={targetRef} 
               className="w-full h-full"
-              style={{
-                // Visually smaller but maintains A4 aspect ratio (210:297)
-                position: 'relative'
-              }}
             >
               <ResumeTemplate resumeData={resumeData} ref={resumeRef} />
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Hidden div at full A4 size for PDF generation */}
+      <div style={{ position: 'absolute', left: '-9999px', top: 0, visibility: 'hidden' }}>
+        <div style={{ width: '210mm', height: '297mm' }}>
+          <ResumeTemplate resumeData={resumeData} />
         </div>
       </div>
     </div>

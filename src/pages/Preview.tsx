@@ -61,20 +61,46 @@ export default function Preview() {
     navigate('/template');
   };
 
-  // Open resume in new tab
+  // Open resume in new tab with improved data handling
   const handleOpenPreview = () => {
-    // Store resume data in session storage temporarily for the preview page
-    sessionStorage.setItem('previewResumeData', JSON.stringify(resumeData));
-    window.open('/resume-preview', '_blank');
+    try {
+      // Ensure the data is a valid JSON string
+      const jsonData = JSON.stringify(resumeData);
+      console.log("Storing resume data in session storage", jsonData.length, "bytes");
+      
+      // Store resume data in session storage for the preview page
+      sessionStorage.setItem('previewResumeData', jsonData);
+      
+      // Open the preview in a new tab
+      window.open('/resume-preview', '_blank');
+    } catch (error) {
+      console.error("Error preparing resume preview:", error);
+      toast({
+        variant: "destructive",
+        title: "Error opening preview",
+        description: "Failed to prepare your resume preview. Please try again.",
+      });
+    }
   };
 
-  // Handle download request
+  // Handle download request with improved PDF generation
   const handleDownload = async () => {
     if (!user) {
       setShowAuthDialog(true);
       return;
     }
-    toPDF();
+    
+    try {
+      console.log("Generating PDF document");
+      toPDF();
+    } catch (error) {
+      console.error("PDF generation error:", error);
+      toast({
+        variant: "destructive",
+        title: "PDF Generation Error",
+        description: "Failed to generate your PDF. Please try again.",
+      });
+    }
   };
 
   // Save resume to database
@@ -156,7 +182,7 @@ export default function Preview() {
             </div>
           </div>
 
-          {/* Action Buttons */}
+          {/* Action Buttons with improved styling */}
           <div className="mt-4 flex flex-wrap gap-3">
             <Button 
               onClick={switchTemplate}
@@ -212,7 +238,7 @@ export default function Preview() {
             </div>
           </div>
           
-          {/* Hidden div for PDF generation */}
+          {/* Hidden div for PDF generation at full A4 size */}
           <div className="hidden">
             <div ref={targetRef} className="w-[210mm] h-[297mm]">
               <ResumeTemplate resumeData={resumeData} ref={resumeRef} />
