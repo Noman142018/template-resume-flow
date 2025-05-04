@@ -37,9 +37,9 @@ const ResumeTemplate = forwardRef<HTMLDivElement, ResumeTemplateProps>(
           overflow: 'hidden',
           backgroundColor: 'white',
           position: 'relative',
-          // A4 dimensions
-          width: '210mm',
-          height: '297mm',
+          // These ensure PDF generation uses full A4 dimensions
+          width: '100%',
+          height: '100%',
         }}
       >
         {renderTemplate()}

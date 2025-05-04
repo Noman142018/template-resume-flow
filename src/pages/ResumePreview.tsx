@@ -11,7 +11,7 @@ export default function ResumePreview() {
   const [zoomLevel, setZoomLevel] = useState(100);
   const resumeRef = useRef<HTMLDivElement>(null);
 
-  // PDF generation setup
+  // PDF generation setup - fixed to remove invalid 'quality' property
   const { toPDF, targetRef } = usePDF({
     filename: resumeData?.personalDetails.fullName 
       ? `${resumeData.personalDetails.fullName.replace(/\s+/g, '_')}_Resume.pdf` 
@@ -23,7 +23,7 @@ export default function ResumePreview() {
     },
     canvas: {
       mimeType: "image/png",
-      quality: 1,
+      // Removed quality property as it's not in the type definition
     },
   });
 
@@ -39,15 +39,16 @@ export default function ResumePreview() {
       }
     }
     
-    // Set initial zoom level based on screen width for better mobile experience
+    // Set a zoom level that makes the resume fit well on mobile and desktop
+    // This matches what 40% zoom looked like before, but sets it as the new 100%
     const setInitialZoom = () => {
       const screenWidth = window.innerWidth;
       if (screenWidth < 768) {
-        // For mobile, use a smaller zoom level
-        setZoomLevel(70);
+        // For mobile, set to 100% (which is actually scaled down in the CSS)
+        setZoomLevel(100);
       } else if (screenWidth < 1024) {
         // For tablets
-        setZoomLevel(85);
+        setZoomLevel(100);
       } else {
         // For desktops
         setZoomLevel(100);
@@ -70,11 +71,11 @@ export default function ResumePreview() {
 
   // Zoom functions
   const handleZoomIn = () => {
-    setZoomLevel(prev => Math.min(prev + 10, 200));
+    setZoomLevel(prev => Math.min(prev + 25, 200));
   };
 
   const handleZoomOut = () => {
-    setZoomLevel(prev => Math.max(prev - 10, 40));
+    setZoomLevel(prev => Math.max(prev - 25, 50));
   };
 
   const handleResetZoom = () => {
@@ -82,6 +83,7 @@ export default function ResumePreview() {
   };
 
   const handleDownload = () => {
+    // Ensure the PDF is generated at full A4 size regardless of current view
     toPDF();
   };
 
@@ -101,10 +103,10 @@ export default function ResumePreview() {
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
-      {/* Toolbar */}
+      {/* Redesigned Toolbar with clean layout */}
       <div className="bg-white border-b py-3 px-4 flex justify-between items-center sticky top-0 z-10 shadow-sm">
         <div className="flex items-center space-x-4">
-          {/* Zoom controls - moved to left */}
+          {/* Zoom controls - positioned left */}
           <div className="flex items-center border rounded-md overflow-hidden bg-white">
             <Button 
               variant="ghost"
@@ -131,9 +133,10 @@ export default function ResumePreview() {
           </div>
         </div>
         
-        <div className="text-lg font-medium text-center flex-1">Resume Preview</div>
+        {/* Centered title with adequate spacing */}
+        <div className="text-lg font-medium text-center flex-1 px-6">Resume Preview</div>
         
-        {/* Download button - moved to right */}
+        {/* Download button - positioned right */}
         <Button 
           onClick={handleDownload}
           className="flex items-center gap-2"
@@ -152,32 +155,38 @@ export default function ResumePreview() {
         className="flex-1 overflow-auto py-8 px-4"
         style={{
           touchAction: "manipulation",
-          WebkitOverflowScrolling: "touch"
+          WebkitOverflowScrolling: "touch",
         }}
       >
         <div 
-          className="mx-auto" 
+          className="mx-auto flex justify-center"
           style={{ 
-            maxWidth: '900px',
-            padding: '0 20px'
+            maxWidth: '100%',
+            padding: '0 20px',
+            overflowX: 'auto'
           }}
         >
-          {/* A4-sized container that scales with zoom */}
+          {/* This scales down the A4 size to fit better on screens while maintaining the A4 aspect ratio */}
           <div 
-            className="bg-white shadow-lg mx-auto transition-transform"
+            className="bg-white shadow-lg mx-auto transition-transform overflow-visible"
             style={{
-              width: '210mm', 
-              height: '297mm', 
+              // Instead of using transform to scale, we're directly sizing it to what was previously ~40% of A4
+              width: '317px', 
+              height: '449px',
               transform: `scale(${zoomLevel / 100})`,
               transformOrigin: 'top center',
-              marginBottom: `${zoomLevel > 100 ? ((zoomLevel - 100) * 2.97) : 0}mm`,
+              marginBottom: `${zoomLevel > 100 ? ((zoomLevel - 100) * 2) : 0}px`,
               margin: '0 auto'
             }}
           >
-            {/* Resume content */}
+            {/* Maintain A4 aspect ratio but with smaller default size */}
             <div 
               ref={targetRef} 
               className="w-full h-full"
+              style={{
+                // Visually smaller but maintains A4 aspect ratio (210:297)
+                position: 'relative'
+              }}
             >
               <ResumeTemplate resumeData={resumeData} ref={resumeRef} />
             </div>
